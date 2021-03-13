@@ -2,32 +2,22 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 // Create User Schema
-const UserSchema = new mongoose.Schema({
-  profile: {
+const userSchema = new mongoose.Schema(
+  {
     firstName: String,
     lastName: String,
+    email: String,
+    password: String,
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  { timestamps: true }
+);
 
 // Encrypt the Password before Saving to DB
-UserSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
   const user = this;
   if (!user.isModified('password')) return next();
 
@@ -36,17 +26,26 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
+// Encrypt the Password before Updating
+userSchema.pre('findOneAndUpdate', async function (next) {
+  const updatedInfo = this.getUpdate();
+  if (updatedInfo.password) {
+    this._update.password = await bcrypt.hash(updatedInfo.password, 10);
+  }
+  next();
+});
+
 // Check if the password is correct
-UserSchema.methods.isValidPassword = async function(password) {
+userSchema.methods.isValidPassword = async function (password) {
   const compare = await bcrypt.compare(password, this.password);
   return compare;
-}
+};
 
-UserSchema.virtual('fullName').get(function() {
-  return this.profile.firstName + ' ' + this.profile.lastName
-})
+userSchema.virtual('fullName').get(function () {
+  return this.firstName + ' ' + this.lastName;
+});
 
-UserSchema.set('toObject', {virtuals: true});
-UserSchema.set('toJSON', {virtuals: true});
+userSchema.set('toObject', { virtuals: true });
+userSchema.set('toJSON', { virtuals: true });
 
-module.exports = mongoose.model('user', UserSchema);
+module.exports = mongoose.model('user', userSchema);

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%- include ("partials/commonhead") %>
+  </head>
+
+  <body class="login-page-body">
+    <div class="login-page-wrapper">
+      <img class="mb-3 login-logo" src="/img/logo-white.png" />
+      <!-- <h1 class="text-white">Brand</h1> -->
+      <h2 class="text-white">Admin Dashboard</h2>
+      <div class="login-card mx-auto">
+        <div class="login-card-heading bg-theme text-white">
+          <h4 class="mb-0 card-title">Login</h4>
+        </div>
+        <div class="login-card-body bg-light">
+          <%- include ("partials/messages") %>
+          <form action="/admin/login" method="post" data-parsley-validate>
+            <input class="form-control mt-4" type="email" placeholder="Email" name="email" id="email" required />
+            <input class="form-control mt-3" type="password" placeholder="Password" name="password" id="password" required />
+            <input class="btn form-control mt-3 btn-theme" type="submit" value="Login" />
+          </form>
+        </div>
+      </div>
+    </div>
+    <%- include ("partials/commonscripts") %>
+  </body>
+</html>
